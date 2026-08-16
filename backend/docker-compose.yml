@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # Redis for caching and task management
+  redis:
+    image: redis:7-alpine
+    container_name: growth-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # $GROWTH FastAPI Backend
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: growth-api
+    ports:
+      - "8000:8000"
+    environment:
+      - SOLANA_RPC_URL=${SOLANA_RPC_URL:-https://api.mainnet-beta.solana.com}
+      - SOLANA_NETWORK=${SOLANA_NETWORK:-mainnet-beta}
+      - SOLANA_COMMITMENT_LEVEL=${SOLANA_COMMITMENT_LEVEL:-confirmed}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+      - TARGET_TOKEN_ADDRESS=${TARGET_TOKEN_ADDRESS}
+      - REDIS_URL=redis://redis:6379
+      - REDIS_DB=0
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - API_LOG_LEVEL=${API_LOG_LEVEL:-info}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DEBUG=${DEBUG:-true}
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  redis_data:
+
+networks:
+  default:
+    name: growth-network

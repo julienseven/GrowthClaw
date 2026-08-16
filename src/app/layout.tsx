@@ -3,15 +3,14 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "$GROWTH · Autonomous Marketing Growth Hacker",
-  description:
-    "B2B dashboard for autonomous liquidity balancing, spread protection, and agent treasury management.",
+  title: "Arena Next.js PostgreSQL Starter",
+  description: "Starter template with Next.js, Drizzle, and PostgreSQL.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className="dark">
-      <body className="antialiased">{children}</body>
+    <html lang="en">
+      <body className="bg-slate-100 text-slate-900 antialiased">{children}</body>
     </html>
   );
 }
