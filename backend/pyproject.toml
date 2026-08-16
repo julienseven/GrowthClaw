@@ -1,0 +1,36 @@
+[project]
+name = "growth-backend"
+version = "0.1.0"
+description = "Autonomous Marketing Growth Hacker — FastAPI + Asyncio backend for $GROWTH"
+requires-python = ">=3.11,<3.12"
+# Dependencies are intentionally sourced from requirements.txt during the
+# foundational phase; uncomment the block below once we move to PEP 621
+# package management with `pip install -e .`
+# dependencies = [
+#   "fastapi==0.115.12",
+#   "uvicorn[standard]==0.34.2",
+#   "solders==0.27.1",
+#   "solana==0.36.11",
+#   "openai==1.72.0",
+# ]
+
+[project.optional-dependencies]
+dev = [
+  "pytest==8.3.5",
+  "pytest-asyncio==0.26.0",
+  "ruff==0.11.4",
+]
+
+# ---- Tooling configuration (lint / format) --------------------
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
