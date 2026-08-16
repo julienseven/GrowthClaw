@@ -1,114 +1,238 @@
-# $GROWTH — The Autonomous Marketing Growth Hacker
+# $GROWTH: The Autonomous Marketing Growth Hacker on Solana
 
-An autonomous marketing growth engine for the **AnsemHack on Solana**. `$GROWTH`
-is an AI agent that continuously generates, schedules, and executes marketing
-actions on behalf of a token — powered by **OpenAI (gpt-4o-mini)** and driven by
-a **FastAPI + Asyncio** backend with a **Next.js (App Router)** frontend.
+An AnsemHack project for autonomous marketing strategy generation and execution on Solana.
 
-> **Status:** foundational architecture — directory scaffolding and environment
-> configuration only. No functional business logic has been implemented yet.
+## Project Overview
 
----
+$GROWTH is a full-stack Web3 application that leverages AI (OpenAI GPT-4o-mini) and blockchain analysis to generate autonomous marketing strategies for tokens on Solana.
+
+## Architecture
+
+```
+growth/
+├── frontend/                 # Next.js 14+ App Router
+│   ├── src/
+│   │   ├── app/             # Next.js App Router pages
+│   │   ├── components/      # React components
+│   │   ├── hooks/           # Custom React hooks
+│   │   ├── lib/             # Utilities (Solana, API client)
+│   │   └── types/           # TypeScript type definitions
+│   ├── public/              # Static assets
+│   ├── package.json
+│   └── tsconfig.json
+│
+└── backend/                 # Python FastAPI
+    ├── config/              # Settings and environment management
+    ├── core/                # Core services (SolanaClient, AIEngine)
+    ├── models/              # Pydantic schemas
+    ├── routes/              # API endpoints
+    ├── workers/             # Asyncio background workers
+    ├── utils/               # Helpers and validators
+    ├── main.py              # FastAPI application entry point
+    ├── requirements.txt     # Python dependencies
+    └── .env.example         # Environment variables template
+```
 
 ## Tech Stack
 
-| Layer      | Technology                                                        |
-| ---------- | ----------------------------------------------------------------- |
-| Frontend   | Next.js 16 (App Router), Tailwind CSS, Lucide React, `@solana/web3.js` |
-| Backend    | Python 3.11, FastAPI, Asyncio                                     |
-| Solana     | `solana-py` + `solders` (backend), `@solana/web3.js` (frontend)   |
-| AI Engine  | OpenAI API — `gpt-4o-mini`                                        |
-| Persistence| PostgreSQL (via the provided Drizzle ORM wiring in `src/db/`)     |
+### Frontend
+- **Framework**: Next.js 14+ (App Router)
+- **Styling**: Tailwind CSS
+- **Icons**: Lucide React
+- **Blockchain**: @solana/web3.js
+- **Language**: TypeScript
 
----
+### Backend
+- **Framework**: FastAPI 0.115.4
+- **Language**: Python 3.11+
+- **Runtime**: Asyncio for background workers
+- **Solana Libraries**: solders, solana-py
+- **AI**: OpenAI API (gpt-4o-mini)
+- **Database**: Redis (caching and task management)
+- **Validation**: Pydantic v2
 
-## Repository Layout
+## Configuration
 
+### Environment Variables
+
+#### Frontend (.env.local)
 ```
-.
-├── src/                     # Next.js frontend (App Router)
-│   ├── app/                 #   routes / pages / API-route proxies
-│   ├── lib/                 #   client helpers → env.ts (typed env)
-│   │   └── env.ts
-│   └── db/                  #   Drizzle schema + client (shared w/ backend)
-├── backend/                 # Python FastAPI backend
-│   ├── app/
-│   │   ├── core/            #   config.py (typed settings), logging, lifecycle
-│   │   ├── api/             #   HTTP routes (deps, routers)
-│   │   ├── domain/          #   business logic (Solana adapter, AI engine)
-│   │   └── workers/         #   asyncio background workers
-│   ├── requirements.txt
-│   ├── pyproject.toml
-│   └── .env.example
-└── .env.example             # Next.js frontend env template
+NEXT_PUBLIC_SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
+NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
-### Boundaries
+#### Backend (.env)
+```
+# Solana Configuration
+SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
+SOLANA_NETWORK=mainnet-beta
+SOLANA_COMMITMENT_LEVEL=confirmed
 
-- **`src/`** — the Next.js app. Never imports Python; talks to the backend via
-  HTTP. Browser-safe secrets are limited to `NEXT_PUBLIC_*`.
-- **`backend/`** — the FastAPI app. Owns all secrets (OpenAI key, RPC URLs) and
-  runs the asyncio workers. It is the single writer to the database.
-- **`src/lib/env.ts`** vs **`backend/app/core/config.py`** — twin typed
-  configuration surfaces; each side validates its own env at startup.
+# OpenAI Configuration
+OPENAI_API_KEY=sk-your-api-key-here
+OPENAI_MODEL=gpt-4o-mini
+OPENAI_MAX_TOKENS=4096
+OPENAI_TEMPERATURE=0.7
 
----
+# Target Token Configuration
+TARGET_TOKEN_ADDRESS=
+TARGET_TOKEN_DECIMALS=6
+TARGET_DEX_PROGRAM_ID=675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1xf
 
-## Getting Started
+# Redis Configuration
+REDIS_URL=redis://localhost:6379
+REDIS_DB=0
 
-### 1. Frontend env
+# API Configuration
+API_HOST=0.0.0.0
+API_PORT=8000
+API_LOG_LEVEL=info
 
-```bash
-cp .env.example .env.local
+# Environment
+ENVIRONMENT=development
+DEBUG=true
 ```
 
-### 2. Backend env
+## Backend Module Structure
 
+### config/
+- **settings.py**: Pydantic Settings for environment variable management
+- Centralized configuration for all backend services
+
+### core/
+- **solana_client.py**: Solana RPC client wrapper
+- **ai_engine.py**: OpenAI API wrapper for marketing insights
+
+### workers/
+- **market_monitor.py**: Autonomous agent for continuous market surveillance
+- **growth_agent.py**: AI-powered growth optimization agent using asyncio
+
+### models/
+- **schemas.py**: Pydantic schemas for API request/response validation
+
+### routes/
+- **market.py**: Market data endpoints
+- **strategies.py**: Strategy management endpoints
+- **token.py**: Token information endpoints
+
+### utils/
+- **logger.py**: Logging configuration
+- **validators.py**: Input validation utilities
+
+## Frontend Components
+
+- **Header**: Main navigation and branding
+- **Footer**: Application footer
+- **Custom Hooks**: `useApi` for API interactions with state management
+
+## Frontend Libraries
+
+- **lib/solana.ts**: Solana Web3.js utilities
+- **lib/api.ts**: Backend API client with typed responses
+- **types/index.ts**: Global TypeScript interfaces
+
+## Getting Started (Setup Guide)
+
+### Prerequisites
+- Node.js 18+
+- Python 3.11+
+- Redis (for background task management)
+- OpenAI API key
+- Solana RPC endpoint access
+
+### Backend Setup
 ```bash
 cd backend
-python3.11 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
 cp .env.example .env
-# fill in OPENAI_API_KEY, SOLANA_RPC_URL, SOLANA_TARGET_TOKENS
+# Edit .env with your configuration
+pip install -r requirements.txt
+uvicorn main:app --reload
 ```
 
-### 3. Validate configuration
-
+### Frontend Setup
 ```bash
-cd backend
-python -m app.infra.config   # exits non-zero if anything is misconfigured
+npm install
+npm run dev
 ```
 
+## API Endpoints (FastAPI)
+
+### Health & Status
+- `GET /health` - Service health check
+- `GET /` - API information
+
+### Market Data
+- `GET /api/market/data/{token_address}` - Get market data
+- `GET /api/market/analysis/{token_address}` - Get market analysis
+- `GET /api/market/trends` - Get market trends
+
+### Strategies
+- `GET /api/strategies/{token_address}` - Get strategies for token
+- `GET /api/strategies/{token_address}/latest` - Get latest strategy
+- `GET /api/strategies/performance/{strategy_id}` - Get strategy performance
+
+### Token Information
+- `GET /api/token/{token_address}` - Get token info
+- `GET /api/token/{token_address}/holders` - Get top holders
+- `GET /api/token/{token_address}/metrics` - Get token metrics
+
+## Background Workers
+
+### MarketMonitor
+- Continuous market surveillance
+- Data collection from Solana DEX
+- Metrics processing and analysis
+- Update interval: 60 seconds
+
+### GrowthAgent
+- AI-powered strategy generation
+- Market analysis and optimization
+- Autonomous recommendation generation
+- Update interval: 5 minutes
+
+## Development Status
+
+This is the foundational architecture and is ready for feature implementation:
+- ✅ Project structure established
+- ✅ Configuration management setup
+- ✅ FastAPI framework configured with CORS
+- ✅ Solana client wrapper abstraction
+- ✅ OpenAI AI engine wrapper abstraction
+- ✅ Asyncio background worker structure
+- ✅ Pydantic schema definitions
+- ✅ API route structure with placeholders
+- ✅ Frontend component structure
+- ✅ Type definitions and utilities
+- ⏳ Functional implementations (next phase)
+
+## Future Phases
+
+### Phase 1: Core Implementation
+- Implement Solana blockchain interactions
+- Integrate OpenAI API for analysis
+- Build market data collectors
+- Implement AI strategy generation
+
+### Phase 2: Advanced Features
+- Autonomous strategy execution
+- Real-time notifications
+- Dashboard analytics
+- Transaction history and tracking
+
+### Phase 3: Optimization
+- Performance tuning
+- Mainnet deployment
+- Advanced caching strategies
+- ML model fine-tuning
+
+## Notes for AnsemHack
+
+This architecture is specifically designed for the AnsemHack competition:
+- **Solana Integration**: Full Web3.js frontend and Solana Python support
+- **AI Integration**: OpenAI GPT-4o-mini for autonomous decision making
+- **Autonomy**: Background workers with asyncio for continuous operation
+- **Growth Focus**: Autonomous marketing strategy generation and tracking
+
 ---
 
-## Configuration Reference
-
-### Backend (`backend/.env`)
-
-| Variable                     | Purpose                                        | Required |
-| ---------------------------- | ---------------------------------------------- | -------- |
-| `OPENAI_API_KEY`             | OpenAI API key (engine disabled when unset)    | prod     |
-| `OPENAI_MODEL`               | Model to call (default `gpt-4o-mini`)          | no       |
-| `SOLANA_RPC_URL`             | HTTPS RPC endpoint                             | yes      |
-| `SOLANA_RPC_WS_URL`          | WebSocket RPC (optional)                       | no       |
-| `SOLANA_TARGET_TOKENS`       | Comma-separated base58 mint addresses          | no       |
-| `WORKER_MAX_CONCURRENT_TASKS`| Async worker concurrency cap                   | no       |
-| `CORS_ALLOWED_ORIGINS`       | Allowed frontend origins                        | dev      |
-
-### Frontend (`.env.local`)
-
-| Variable                    | Purpose                                   | Required |
-| --------------------------- | ----------------------------------------- | -------- |
-| `NEXT_PUBLIC_API_URL`       | FastAPI backend origin                    | yes      |
-| `NEXT_PUBLIC_SOLANA_RPC_URL`| Public RPC for `@solana/web3.js`          | yes      |
-| `NEXT_PUBLIC_TARGET_TOKENS` | Comma-separated base58 mint addresses     | no       |
-
----
-
-## Roadmap (implementation phases)
-
-1. **API skeleton** — FastAPI app factory, `/api/health`, CORS wiring.
-2. **Solana adapter** — RPC client wrapper around `solders` / `solana-py`.
-3. **AI engine** — `AsyncOpenAI` client (gpt-4o-mini) with typed prompts.
-4. **Workers** — asyncio task loop consuming marketing actions.
-5. **Frontend** — page shell, Tailwind theme, wallet + token UI via `@solana/web3.js`.
+**Built with ❤️ for AnsemHack | The Autonomous Marketing Growth Hacker**
